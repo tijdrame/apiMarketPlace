@@ -1,0 +1,38 @@
+{
+  "generator-jhipster": {
+    "promptValues": {
+      "packageName": "com.boa.api"
+    },
+    "jhipsterVersion": "6.10.5",
+    "applicationType": "monolith",
+    "baseName": "apiMarketPlace",
+    "packageName": "com.boa.api",
+    "packageFolder": "com/boa/api",
+    "serverPort": "8080",
+    "authenticationType": "jwt",
+    "cacheProvider": "ehcache",
+    "enableHibernateCache": true,
+    "websocket": false,
+    "databaseType": "sql",
+    "devDatabaseType": "postgresql",
+    "prodDatabaseType": "postgresql",
+    "searchEngine": false,
+    "messageBroker": false,
+    "serviceDiscoveryType": false,
+    "buildTool": "maven",
+    "enableSwaggerCodegen": false,
+    "jwtSecretKey": "MjA0N2RkMDU0NmU1ZTBjY2FhOThlZWQ0MWFjMTAxNmY5MjQ5MTczMzVkMzFiOWJhYjFkOTBhMzcwMDkxNTc4M2VmODEzMjU4ZGI3NWJmYTIzOWYxYjIwZTM2YWY4YzUyMDU2MzFiNmNmYWZmYTg5YjRhNGI3Zjg1NjFmNDk3MDU=",
+    "embeddableLaunchScript": false,
+    "useSass": true,
+    "clientPackageManager": "npm",
+    "skipClient": true,
+    "creationTimestamp": 1606729327453,
+    "testFrameworks": [],
+    "jhiPrefix": "jhi",
+    "entitySuffix": "",
+    "dtoSuffix": "DTO",
+    "otherModules": [],
+    "enableTranslation": false,
+    "blueprints": []
+  }
+}
