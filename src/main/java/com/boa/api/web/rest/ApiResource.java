@@ -35,7 +35,7 @@ public class ApiResource {
         log.debug("REST request to assetFin : [{}]", authRequest);
         GenericResponse response = new GenericResponse();
         if (controleParam(authRequest.getCountry()) || controleParam(authRequest.getLogin())||
-         controleParam(authRequest.getPassword())) {
+         controleParam(authRequest.getPassword()) || controleParam(authRequest.getLangue())) {
             response.setCode(ICodeDescResponse.PARAM_ABSENT_CODE);
             response.setDateResponse(Instant.now());
             response.setDescription(ICodeDescResponse.PARAM_DESCRIPTION);

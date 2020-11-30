@@ -11,7 +11,7 @@ public class GenericResponse {
     protected String description;
     protected Instant dateResponse;
     protected String responseReference;
-    private Map<String, Object> data = new HashMap<>();
+    //private Map<String, Object> data = new HashMap<>();
     public GenericResponse (){
         this.responseReference = RandomStringUtils.randomAlphanumeric(20).toUpperCase();
     }
@@ -77,16 +77,16 @@ public class GenericResponse {
     /**
      * @return Map<String, Object> return the data
      */
-    public Map<String, Object> getData() {
+    /*public Map<String, Object> getData() {
         return data;
-    }
+    }*/
 
     /**
      * @param data the data to set
      */
-    public void setData(Map<String, Object> data) {
+    /*public void setData(Map<String, Object> data) {
         this.data = data;
-    }
+    }*/
 
 
     @Override
@@ -96,7 +96,7 @@ public class GenericResponse {
             ", description='" + description + "'" +
             ", dateResponse='" + dateResponse + "'" +
             ", responseReference='" + responseReference + "'" +
-            ", data='" + data + "'" +
+            //", data='" + data + "'" +
             "}";
     }
     

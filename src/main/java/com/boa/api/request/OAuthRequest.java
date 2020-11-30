@@ -4,6 +4,7 @@ public class OAuthRequest {
     private String login;
     private String password;
     private String country;
+    private String langue;
 
     public OAuthRequest() {
     }
@@ -53,12 +54,34 @@ public class OAuthRequest {
         return this;
     }
 
+    public OAuthRequest(String login, String password, String country, String langue) {
+        this.login = login;
+        this.password = password;
+        this.country = country;
+        this.langue = langue;
+    }
+
+    public String getLangue() {
+        return this.langue;
+    }
+
+    public void setLangue(String langue) {
+        this.langue = langue;
+    }
+
+    public OAuthRequest langue(String langue) {
+        this.langue = langue;
+        return this;
+    }
+
+
     @Override
     public String toString() {
         return "{" +
             " login='" + getLogin() + "'" +
             ", password='" + getPassword() + "'" +
             ", country='" + getCountry() + "'" +
+            ", langue='" + getLangue() + "'" +
             "}";
     }
 
