@@ -5,7 +5,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.time.Instant;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
@@ -16,18 +15,14 @@ import com.boa.api.request.OAuthRequest;
 import com.boa.api.response.GenericResponse;
 import com.boa.api.service.util.ICodeDescResponse;
 import com.boa.api.service.util.Utils;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.context.MessageSource;
-import org.springframework.context.NoSuchMessageException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import liquibase.pro.packaged.e;
 
 @Service
 @Transactional
@@ -146,7 +141,9 @@ public class ApiService {
             } else if (obj.toString() != null && !obj.isNull("rcode") && obj.get("rcode").equals("0203")) {
                 return messageSource.getMessage("auth.error.0203", null, locale);
             }else if (obj.toString() != null && !obj.isNull("rcode") && obj.get("rcode").equals("0204")) {
-                return messageSource.getMessage("auth.error.0204", null, locale);
+                String msg = obj.getString("rmessage");
+            final String[] params = new String[]{msg};
+                return messageSource.getMessage("auth.error.0204", params, locale);
             }else if (obj.toString() != null && !obj.isNull("rcode") && obj.get("rcode").equals("0205")) {
                 return messageSource.getMessage("auth.error.0205", null, locale);
             }else if (obj.toString() != null && !obj.isNull("rcode") && obj.get("rcode").equals("0206")) {
