@@ -33,9 +33,9 @@ spring:
       enabled: false
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:postgresql://localhost:5432/apiMarketPlace
-    username: apiMarketPlace
-    password:
+    url: jdbc:postgresql://10.170.102.35:5432/boa_marketp_db
+    username: postgres
+    password: G66xJIf1rC4J
     hikari:
       poolName: Hikari
       auto-commit: false
