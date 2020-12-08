@@ -11,8 +11,10 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.boa.api.domain.ParamEndPoint;
 import com.boa.api.domain.Tracking;
+import com.boa.api.request.CreateLoanRequest;
 import com.boa.api.request.OAuthRequest;
 import com.boa.api.request.SearchClientRequest;
+import com.boa.api.response.CreateLoanResponse;
 import com.boa.api.response.GenericResponse;
 import com.boa.api.response.OAuthResponse;
 import com.boa.api.response.SearchClientResponse;
@@ -170,7 +172,6 @@ public class ApiService {
                     result += ligne;
                     ligne = br.readLine();
                 }
-                // result = IOUtils.toString(conn.getInputStream(), "UTF-8");
                 log.info("getClients result ===== [{}]", result);
                 obj = new JSONObject(result);
                 obj = obj.getJSONObject("data");
@@ -198,7 +199,6 @@ public class ApiService {
                     tracking = createTracking(tracking, ICodeDescResponse.SUCCES_CODE, request.getRequestURI(),
                             genericResp.toString(), clientRequest.toString(), genericResp.getResponseReference());
                 } else {
-                    //String ret = getMsgEchecAuth(obj, locale);
                     genericResp.setCode(ICodeDescResponse.ECHEC_CODE);
                     genericResp.setDateResponse(Instant.now());
                     genericResp.setDescription(messageSource.getMessage("client.error", null, locale));
@@ -214,10 +214,8 @@ public class ApiService {
                 }
                 log.info("resp envoi error ===== [{}]", result);
                 obj = new JSONObject(result);
-                /*ObjectMapper mapper = new ObjectMapper();
-                Map<String, Object> map = mapper.readValue(result, Map.class);*/
+                
                 obj = new JSONObject(result);
-                // genericResp.setData(map);
                 genericResp.setCode(ICodeDescResponse.ECHEC_CODE);
                 genericResp.setDateResponse(Instant.now());
                 genericResp.setDescription(messageSource.getMessage("auth.error.exep", null, locale));
@@ -237,6 +235,101 @@ public class ApiService {
         trackingService.save(tracking);
         return genericResp;
     }
+
+    public CreateLoanResponse createLoan(CreateLoanRequest loanRequest, HttpServletRequest request) {
+        log.info("Enter in createLoan=== [{}]", loanRequest);
+        Locale locale = defineLocale(loanRequest.getLangue());
+
+        CreateLoanResponse genericResp = new CreateLoanResponse();
+        Tracking tracking = new Tracking();
+        tracking.setDateRequest(Instant.now());
+
+        Optional<ParamEndPoint> endPoint = endPointService.findByCodeParam("createLoan");
+        if (!endPoint.isPresent()) {
+            genericResp.setCode(ICodeDescResponse.ECHEC_CODE);
+            genericResp.setDescription(messageSource.getMessage("service.absent", null, locale));
+            genericResp.setDateResponse(Instant.now());
+            tracking = createTracking(tracking, ICodeDescResponse.ECHEC_CODE, "authorisation", genericResp.toString(),
+            loanRequest.toString(), genericResp.getResponseReference());
+            trackingService.save(tracking);
+            return genericResp;
+        }
+        try {
+            String jsonStr = new JSONObject()
+                    .put("userCode", loanRequest.getUserCode())
+                    .put("lduration", loanRequest.getDuration())
+                    .put("lclient", loanRequest.getClient())
+                    .put("caccountnum", loanRequest.getAccountNum())
+                    .put("lamount", loanRequest.getAmount())
+                    .put("ldocref", loanRequest.getDocRef())
+                    .put("cemployer", loanRequest.getCliEmployer())
+                    .put("supcode", loanRequest.getSupplierCode())
+                    .put("supname", loanRequest.getSupplierName())
+                    .put("lfees", loanRequest.getFees())
+                    .put("country", loanRequest.getCountry())
+                    .put("lassureur", loanRequest.getAssureur())
+                    .put("lassuramount", loanRequest.getAssurAmount())
+                    .toString();
+            HttpURLConnection conn = utils.doConnexion(endPoint.get().getEndPoints(), jsonStr, "application/json",
+                    null);
+            BufferedReader br = null;
+            JSONObject obj = new JSONObject();
+            String result = "";
+            log.info("resp code envoi [{}]", conn.getResponseCode());
+            if (conn != null && conn.getResponseCode() == 200) {
+                br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                String ligne = br.readLine();
+                while (ligne != null) {
+                    result += ligne;
+                    ligne = br.readLine();
+                }
+                log.info("createLoan result ===== [{}]", result);
+                obj = new JSONObject(result);
+                obj = obj.getJSONObject("data");
+
+                if (obj.toString() != null && !obj.isNull("rcode") && obj.get("rcode").equals("0100")) {
+                    genericResp.setCode(ICodeDescResponse.SUCCES_CODE);
+                    genericResp.setDescription(messageSource.getMessage("loan.success", null, locale));
+                    genericResp.setDateResponse(Instant.now());
+                    genericResp.setRefIngec(obj.getJSONObject("rdata").getString("refIngec"));
+                    
+                    tracking = createTracking(tracking, ICodeDescResponse.SUCCES_CODE, request.getRequestURI(),
+                            genericResp.toString(), loanRequest.toString(), genericResp.getResponseReference());
+                } else {
+                    genericResp.setCode(ICodeDescResponse.ECHEC_CODE);
+                    genericResp.setDateResponse(Instant.now());
+                    genericResp.setDescription(messageSource.getMessage("loan.error", null, locale));
+                    tracking = createTracking(tracking, ICodeDescResponse.ECHEC_CODE, request.getRequestURI(),
+                            genericResp.toString(), loanRequest.toString(), genericResp.getResponseReference());
+                }
+            } else {
+                br = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
+                String ligne = br.readLine();
+                while (ligne != null) {
+                    result += ligne;
+                    ligne = br.readLine();
+                }
+                log.info("resp envoi error ===== [{}]", result);
+                obj = new JSONObject(result);
+                
+                obj = new JSONObject(result);
+                genericResp.setCode(ICodeDescResponse.ECHEC_CODE);
+                genericResp.setDateResponse(Instant.now());
+                genericResp.setDescription(messageSource.getMessage("auth.error.exep", null, locale));
+                tracking = createTracking(tracking, ICodeDescResponse.ECHEC_CODE, request.getRequestURI(),
+                        genericResp.toString(), loanRequest.toString(), genericResp.getResponseReference());
+            }
+        } catch (Exception e) {
+            log.error("Exception in oAuth [{}]", e);
+            genericResp.setCode(ICodeDescResponse.ECHEC_CODE);
+            genericResp.setDateResponse(Instant.now());
+            genericResp.setDescription(messageSource.getMessage("auth.error.exep", null, locale) + e.getMessage());
+            tracking = createTracking(tracking, ICodeDescResponse.ECHEC_CODE, request.getRequestURI(), e.getMessage(),
+            loanRequest.toString(), genericResp.getResponseReference());
+        }
+		trackingService.save(tracking);
+        return genericResp;
+	}
     
     private Locale defineLocale(String lang) {
         Locale locale = null;
@@ -294,6 +387,8 @@ public class ApiService {
         tracking.setRequestTr(req);
         return tracking;
     }
+
+	
 
 	
 }
