@@ -16,12 +16,13 @@ public class CreateLoanRequest {
     private String langue;
     private String assureur;
     private Double assurAmount;
+    private String creditCode;
 
 
     public CreateLoanRequest() {
     }
 
-    public CreateLoanRequest(String userCode, Integer duration, String client, String accountNum, Double amount, String docRef, String cliEmployer, String supplierCode, String supplierName, Double fees, String country, String langue, String assureur, Double assurAmount) {
+    public CreateLoanRequest(String userCode, Integer duration, String client, String accountNum, Double amount, String docRef, String cliEmployer, String supplierCode, String supplierName, Double fees, String country, String langue, String assureur, Double assurAmount, String creditCode) {
         this.userCode = userCode;
         this.duration = duration;
         this.client = client;
@@ -36,6 +37,7 @@ public class CreateLoanRequest {
         this.langue = langue;
         this.assureur = assureur;
         this.assurAmount = assurAmount;
+        this.creditCode = creditCode;
     }
 
     public String getUserCode() {
@@ -150,6 +152,14 @@ public class CreateLoanRequest {
         this.assurAmount = assurAmount;
     }
 
+    public String getCreditCode() {
+        return this.creditCode;
+    }
+
+    public void setCreditCode(String creditCode) {
+        this.creditCode = creditCode;
+    }
+
     public CreateLoanRequest userCode(String userCode) {
         this.userCode = userCode;
         return this;
@@ -220,6 +230,11 @@ public class CreateLoanRequest {
         return this;
     }
 
+    public CreateLoanRequest creditCode(String creditCode) {
+        this.creditCode = creditCode;
+        return this;
+    }
+
     @Override
     public String toString() {
         return "{" +
@@ -237,10 +252,9 @@ public class CreateLoanRequest {
             ", langue='" + getLangue() + "'" +
             ", assureur='" + getAssureur() + "'" +
             ", assurAmount='" + getAssurAmount() + "'" +
+            ", creditCode='" + getCreditCode() + "'" +
             "}";
     }
-
-    
     
 
 }

@@ -269,6 +269,7 @@ public class ApiService {
                     .put("country", loanRequest.getCountry())
                     .put("lassureur", loanRequest.getAssureur())
                     .put("lassuramount", loanRequest.getAssurAmount())
+                    .put("creditCode", loanRequest.getCreditCode())
                     .toString();
             HttpURLConnection conn = utils.doConnexion(endPoint.get().getEndPoints(), jsonStr, "application/json",
                     null);
