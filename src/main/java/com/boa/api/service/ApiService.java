@@ -296,10 +296,11 @@ public class ApiService {
                     
                     tracking = createTracking(tracking, ICodeDescResponse.SUCCES_CODE, request.getRequestURI(),
                             genericResp.toString(), loanRequest.toString(), genericResp.getResponseReference());
-                } else {
+                }
+                 else {
                     genericResp.setCode(ICodeDescResponse.ECHEC_CODE);
                     genericResp.setDateResponse(Instant.now());
-                    genericResp.setDescription(messageSource.getMessage("loan.error", null, locale));
+                    genericResp.setDescription(getMsgErrorLoan(obj.getString("rcode"), locale));
                     tracking = createTracking(tracking, ICodeDescResponse.ECHEC_CODE, request.getRequestURI(),
                             genericResp.toString(), loanRequest.toString(), genericResp.getResponseReference());
                 }
@@ -321,7 +322,7 @@ public class ApiService {
                         genericResp.toString(), loanRequest.toString(), genericResp.getResponseReference());
             }
         } catch (Exception e) {
-            log.error("Exception in oAuth [{}]", e);
+            log.error("Exception in create Loan [{}]", e);
             genericResp.setCode(ICodeDescResponse.ECHEC_CODE);
             genericResp.setDateResponse(Instant.now());
             genericResp.setDescription(messageSource.getMessage("auth.error.exep", null, locale) + e.getMessage());
@@ -339,6 +340,22 @@ public class ApiService {
         else
             locale = Locale.FRANCE;
             return locale;
+    }
+
+    private String getMsgErrorLoan(String retour, Locale locale){
+        if(retour.equals("0200")){
+            return messageSource.getMessage("loan.code.error", null, locale);
+        } else if(retour.equals("0201")){
+            return messageSource.getMessage("loan.credit.error", null, locale);
+        }else if(retour.equals("0202")){
+            return messageSource.getMessage("loan.compte.error", null, locale);
+        }else if(retour.equals("0203")){
+            return messageSource.getMessage("loan.tit.error", null, locale);
+        }else if(retour.equals("0204")){
+            return messageSource.getMessage("loan.emp.error", null, locale);
+        }else {
+            return messageSource.getMessage("auth.error.exep", null, locale);
+        }
     }
 
     private String getMsgEchecAuth(JSONObject obj, Locale locale) {
