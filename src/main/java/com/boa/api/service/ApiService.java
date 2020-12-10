@@ -261,7 +261,8 @@ public class ApiService {
                     .put("supcode", loanRequest.getSupplierCode()).put("supname", loanRequest.getSupplierName())
                     .put("lfees", loanRequest.getFees()).put("country", loanRequest.getCountry())
                     .put("lassureur", loanRequest.getAssureur()).put("lassuramount", loanRequest.getAssurAmount())
-                    .put("creditCode", loanRequest.getCreditCode()).toString();
+                    .put("creditCode", loanRequest.getCreditCode())
+                    .put("salnet", loanRequest.getSalaireNet()).toString();
             HttpURLConnection conn = utils.doConnexion(endPoint.get().getEndPoints(), jsonStr, "application/json",
                     null);
             BufferedReader br = null;

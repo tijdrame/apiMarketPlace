@@ -78,9 +78,9 @@ public class ApiResource {
         if (controleParam(loanRequest.getUserCode()) || controleParam(loanRequest.getClient()) ||
          controleParam(loanRequest.getAccountNum()) || controleParam(loanRequest.getDocRef())||
          controleParam(loanRequest.getSupplierCode()) || controleParam(loanRequest.getSupplierName())||
-         controleParam(loanRequest.getCountry()) || loanRequest.getDuration()<=0 || 
-         loanRequest.getAmount()<=0 || loanRequest.getFees()<=0 ||
-         loanRequest.getAssurAmount()<=0 || controleParam(loanRequest.getAssureur())
+         controleParam(loanRequest.getCountry()) || controleParam(loanRequest.getDuration()) || 
+         controleParam(loanRequest.getAmount()) || controleParam(loanRequest.getFees()) || controleParam(loanRequest.getSalaireNet()) ||
+         controleParam(loanRequest.getAssurAmount()) || controleParam(loanRequest.getAssureur())
          ) {
             Locale locale = defineLocale(loanRequest.getLangue());
             response.setCode(ICodeDescResponse.PARAM_ABSENT_CODE);
@@ -92,7 +92,7 @@ public class ApiResource {
         return ResponseEntity.ok().header("Authorization", request.getHeader("Authorization")).body(response);
     }
 
-    private Boolean controleParam(String param) {
+    private Boolean controleParam(Object param) {
         Boolean flag = false;
         if (StringUtils.isEmpty(param))
             flag = true;

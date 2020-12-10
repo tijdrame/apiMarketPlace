@@ -17,12 +17,13 @@ public class CreateLoanRequest {
     private String assureur;
     private Double assurAmount;
     private String creditCode;
+    private Double salaireNet;
 
 
     public CreateLoanRequest() {
     }
 
-    public CreateLoanRequest(String userCode, Integer duration, String client, String accountNum, Double amount, String docRef, String cliEmployer, String supplierCode, String supplierName, Double fees, String country, String langue, String assureur, Double assurAmount, String creditCode) {
+    public CreateLoanRequest(String userCode, Integer duration, String client, String accountNum, Double amount, String docRef, String cliEmployer, String supplierCode, String supplierName, Double fees, String country, String langue, String assureur, Double assurAmount, String creditCode, Double salaireNet) {
         this.userCode = userCode;
         this.duration = duration;
         this.client = client;
@@ -38,6 +39,7 @@ public class CreateLoanRequest {
         this.assureur = assureur;
         this.assurAmount = assurAmount;
         this.creditCode = creditCode;
+        this.salaireNet = salaireNet;
     }
 
     public String getUserCode() {
@@ -160,6 +162,14 @@ public class CreateLoanRequest {
         this.creditCode = creditCode;
     }
 
+    public Double getSalaireNet() {
+        return this.salaireNet;
+    }
+
+    public void setSalaireNet(Double salaireNet) {
+        this.salaireNet = salaireNet;
+    }
+
     public CreateLoanRequest userCode(String userCode) {
         this.userCode = userCode;
         return this;
@@ -235,6 +245,11 @@ public class CreateLoanRequest {
         return this;
     }
 
+    public CreateLoanRequest salaireNet(Double salaireNet) {
+        this.salaireNet = salaireNet;
+        return this;
+    }
+
     @Override
     public String toString() {
         return "{" +
@@ -253,8 +268,9 @@ public class CreateLoanRequest {
             ", assureur='" + getAssureur() + "'" +
             ", assurAmount='" + getAssurAmount() + "'" +
             ", creditCode='" + getCreditCode() + "'" +
+            ", salaireNet='" + getSalaireNet() + "'" +
             "}";
     }
-    
+
 
 }
