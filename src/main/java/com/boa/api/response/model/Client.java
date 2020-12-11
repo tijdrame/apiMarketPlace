@@ -9,17 +9,18 @@ public class Client {
     private String civilite;
     private String lastName;
     private String firstName;
-    private String telephone;
+    private String phoneNumber;
     private List<Account>accounts = new ArrayList<>();
+
 
     public Client() {
     }
 
-    public Client(String civilite, String lastName, String firstName, String telephone, List<Account> accounts) {
+    public Client(String civilite, String lastName, String firstName, String phoneNumber, List<Account> accounts) {
         this.civilite = civilite;
         this.lastName = lastName;
         this.firstName = firstName;
-        this.telephone = telephone;
+        this.phoneNumber = phoneNumber;
         this.accounts = accounts;
     }
 
@@ -47,12 +48,12 @@ public class Client {
         this.firstName = firstName;
     }
 
-    public String getTelephone() {
-        return this.telephone;
+    public String getPhoneNumber() {
+        return this.phoneNumber;
     }
 
-    public void setTelephone(String telephone) {
-        this.telephone = telephone;
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
     public List<Account> getAccounts() {
@@ -78,8 +79,8 @@ public class Client {
         return this;
     }
 
-    public Client telephone(String telephone) {
-        this.telephone = telephone;
+    public Client phoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
         return this;
     }
 
@@ -88,15 +89,17 @@ public class Client {
         return this;
     }
 
+
     @Override
     public String toString() {
         return "{" +
             " civilite='" + getCivilite() + "'" +
             ", lastName='" + getLastName() + "'" +
             ", firstName='" + getFirstName() + "'" +
-            ", telephone='" + getTelephone() + "'" +
+            ", phoneNumber='" + getPhoneNumber() + "'" +
             ", accounts='" + getAccounts() + "'" +
             "}";
     }
+    
 
 }
