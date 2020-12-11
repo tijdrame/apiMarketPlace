@@ -185,7 +185,7 @@ public class ApiService {
 
                     Client client = new Client();
                     client.civilite(obj.getString("civility")).firstName(obj.getString("fname"))
-                            .lastName(obj.getString("name"));
+                            .lastName(obj.getString("name")).telephone(obj.getString("phonenumber"));
 
                     Account account = new Account();
                     // TODO obj.getJSONObject("rdata") doit être une liste

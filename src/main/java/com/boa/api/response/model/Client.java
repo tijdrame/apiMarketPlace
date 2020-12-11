@@ -9,16 +9,17 @@ public class Client {
     private String civilite;
     private String lastName;
     private String firstName;
+    private String telephone;
     private List<Account>accounts = new ArrayList<>();
-
 
     public Client() {
     }
 
-    public Client(String civilite, String lastName, String firstName, List<Account> accounts) {
+    public Client(String civilite, String lastName, String firstName, String telephone, List<Account> accounts) {
         this.civilite = civilite;
         this.lastName = lastName;
         this.firstName = firstName;
+        this.telephone = telephone;
         this.accounts = accounts;
     }
 
@@ -46,6 +47,14 @@ public class Client {
         this.firstName = firstName;
     }
 
+    public String getTelephone() {
+        return this.telephone;
+    }
+
+    public void setTelephone(String telephone) {
+        this.telephone = telephone;
+    }
+
     public List<Account> getAccounts() {
         return this.accounts;
     }
@@ -69,6 +78,11 @@ public class Client {
         return this;
     }
 
+    public Client telephone(String telephone) {
+        this.telephone = telephone;
+        return this;
+    }
+
     public Client accounts(List<Account> accounts) {
         this.accounts = accounts;
         return this;
@@ -80,10 +94,9 @@ public class Client {
             " civilite='" + getCivilite() + "'" +
             ", lastName='" + getLastName() + "'" +
             ", firstName='" + getFirstName() + "'" +
+            ", telephone='" + getTelephone() + "'" +
             ", accounts='" + getAccounts() + "'" +
             "}";
     }
-
-
 
 }
