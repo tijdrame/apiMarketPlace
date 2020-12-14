@@ -6,6 +6,8 @@ import java.net.HttpURLConnection;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -30,6 +32,7 @@ import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 @Service
 @Transactional
@@ -349,10 +352,48 @@ public class ApiService {
             return messageSource.getMessage("loan.error.205", null, locale);
         }else if(retour.equals("0206")){
             String msg = obj.getString("rmessage");
-            String[]tab = null;
-            if(msg.contains("#")) tab = msg.split("#");
-            final String[]params = new String[]{tab!=null?tab[0]:"x", tab!=null?tab[1]:"y"};
+            String valMin = getMatcher("#(.*?)#", msg);
+            String valMax = getMatcher("et #(.*?)#", msg);
+            final String[]params = new String[]{valMin!=null?valMin:"x", valMax!=null?valMax:"y"};
             return messageSource.getMessage("loan.error.206", params, locale);
+        }else if(retour.equals("0207")){
+            return messageSource.getMessage("loan.error.207", null, locale);
+        }else if(retour.equals("0208")){
+            String msg = obj.getString("rmessage");
+            String valMin = getMatcher("#(.*?)#", msg);
+            String valMax = getMatcher("et #(.*?)#", msg);
+            final String[]params = new String[]{valMin!=null?valMin:"x", valMax!=null?valMax:"y"};
+            return messageSource.getMessage("loan.error.208", params, locale);
+        }else if(retour.equals("0209")){
+            String msg = obj.getString("rmessage");
+            String valMin = getMatcher("#(.*?)#", msg);
+            final String[]params = new String[]{valMin!=null?valMin:"x"};
+            return messageSource.getMessage("loan.error.209", params, locale);
+        }else if(retour.equals("0210")){
+            String msg = obj.getString("rmessage");
+            String valMin = getMatcher("#(.*?)#", msg);
+            final String[]params = new String[]{valMin!=null?valMin:"x"};
+            return messageSource.getMessage("loan.error.210", params, locale);
+        }else if(retour.equals("0211")){
+            return messageSource.getMessage("loan.error.211", null, locale);
+        }else if(retour.equals("0212")){
+            String msg = obj.getString("rmessage");
+            String valMin = getMatcher("#(.*?)#", msg);
+            String valMax = getMatcher("des #(.*?)#", msg);
+            final String[]params = new String[]{valMin!=null?valMin:"x", valMax!=null?valMax:"y"};
+            return messageSource.getMessage("loan.error.212", params, locale);
+        }else if(retour.equals("0213")){
+            String msg = obj.getString("rmessage");
+            String valMin = getMatcher("#(.*?)#", msg);
+            final String[]params = new String[]{valMin!=null?valMin:"x"};
+            return messageSource.getMessage("loan.error.213", params, locale);
+        }else if(retour.equals("0214")){
+            String msg = obj.getString("rmessage");
+            String age = getMatcher("#(.*?)#", msg);
+            String valMin = getMatcher("entre #(.*?)#", msg);
+            String valMax = getMatcher("et #(.*?)#", msg);
+            final String[]params = new String[]{age!=null?age:"x",valMin!=null?valMin:"x", valMax!=null?valMax:"y"};
+            return messageSource.getMessage("loan.error.214", params, locale);
         }
         else {
             return messageSource.getMessage("auth.error.exep", null, locale);
@@ -407,7 +448,32 @@ public class ApiService {
         return tracking;
     }
 
-	
+    private String getMatcher(String args, String chaine){
+        Pattern pattern = Pattern.compile(args);
+        Matcher matcher = pattern.matcher(chaine);
+        if (matcher.find()) return  matcher.group(1);
+        return null;
+    }
 
-	
+    public static void main(String[] args) {
+        String var = "La duree doit etre entre #12# et #36#.";
+        Pattern pattern = Pattern.compile("et #(.*?)#");
+        Matcher matcher = pattern.matcher(var);
+        //Matcher matcher = pattern.matches("#(.*?)#", var);
+        if (matcher.find())
+        {
+            System.out.println("res1. == " + matcher.group(1));
+            // System.out.println("res2 =="+matcher.group(2));
+        }       
+
+        //String [] dataIWant = var.split("#(.*?)#");
+		//System.out.println("dataIWant: " + var.substring("#(.*?)#", 0) );
+
+        /*String []tab = StringUtils.split(var, "#(.*?)#");
+        //System.out.println(StringUtils.substringMatch(var, 1, "#(.*?)#"));
+        for (String string : tab) {
+            System.out.println("ressssss====="+string);
+        }*/
+        
+    }
 }
