@@ -14,10 +14,12 @@ import javax.servlet.http.HttpServletRequest;
 import com.boa.api.domain.ParamEndPoint;
 import com.boa.api.domain.Tracking;
 import com.boa.api.request.CreateLoanRequest;
+import com.boa.api.request.NotifyPickupRequest;
 import com.boa.api.request.OAuthRequest;
 import com.boa.api.request.SearchClientRequest;
 import com.boa.api.response.CreateLoanResponse;
 import com.boa.api.response.GenericResponse;
+import com.boa.api.response.NotifyPickupResponse;
 import com.boa.api.response.OAuthResponse;
 import com.boa.api.response.SearchClientResponse;
 import com.boa.api.response.model.Account;
@@ -264,8 +266,10 @@ public class ApiService {
                     .put("supcode", loanRequest.getSupplierCode()).put("supname", loanRequest.getSupplierName())
                     .put("lfees", loanRequest.getFees()).put("country", loanRequest.getCountry())
                     .put("lassureur", loanRequest.getAssureur()).put("lassuramount", loanRequest.getAssurAmount())
-                    .put("creditCode", loanRequest.getCreditCode())
-                    .put("salnet", loanRequest.getSalaireNet()).toString();
+                    .put("creditCode", loanRequest.getCreditCode()).put("salnet", loanRequest.getSalaireNet())
+                    .put("pcode", loanRequest.getCodeProduit()).put("pname", loanRequest.getLibelleProduit())
+                    .put("pdescription", loanRequest.getDescriptionProduit())
+                    .toString();
             HttpURLConnection conn = utils.doConnexion(endPoint.get().getEndPoints(), jsonStr, "application/json",
                     null);
             BufferedReader br = null;
@@ -326,6 +330,91 @@ public class ApiService {
         trackingService.save(tracking);
         return genericResp;
     }
+
+    public NotifyPickupResponse notifyPickup(NotifyPickupRequest notifyRequest, HttpServletRequest request) {
+		log.info("Enter in notifyPickup=== [{}]", notifyRequest);
+        Locale locale = defineLocale(notifyRequest.getLangue());
+
+        NotifyPickupResponse genericResp = new NotifyPickupResponse();
+        Tracking tracking = new Tracking();
+        tracking.setDateRequest(Instant.now());
+
+        Optional<ParamEndPoint> endPoint = endPointService.findByCodeParam("notifyPickup");
+        if (!endPoint.isPresent()) {
+            genericResp.setCode(ICodeDescResponse.ECHEC_CODE);
+            genericResp.setDescription(messageSource.getMessage("service.absent", null, locale));
+            genericResp.setDateResponse(Instant.now());
+            tracking = createTracking(tracking, ICodeDescResponse.ECHEC_CODE, "authorisation", genericResp.toString(),
+            notifyRequest.toString(), genericResp.getResponseReference());
+            trackingService.save(tracking);
+            return genericResp;
+        }
+        try {
+            String jsonStr = new JSONObject().put("docRef", notifyRequest.getDocRef())
+                    .put("receiptNum", notifyRequest.getReceiptNum()).put("deliveryDate", notifyRequest.getDeliveryDate())
+                    .put("deliveryAddress", notifyRequest.getDeliveryAddress())
+                    .put("deliveryUser", notifyRequest.getDeliveryUser()).put("status", notifyRequest.getStatus())
+                    .put("motif", notifyRequest.getMotif()).put("country", notifyRequest.getCountry())
+                    .toString();
+            HttpURLConnection conn = utils.doConnexion(endPoint.get().getEndPoints(), jsonStr, "application/json",
+                    null);
+            BufferedReader br = null;
+            JSONObject obj = new JSONObject();
+            String result = "";
+            log.info("resp code  [{}]", conn.getResponseCode());
+            if (conn != null && conn.getResponseCode() == 200) {
+                br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                String ligne = br.readLine();
+                while (ligne != null) {
+                    result += ligne;
+                    ligne = br.readLine();
+                }
+                log.info("notifyPickup result ===== [{}]", result);
+                obj = new JSONObject(result);
+                obj = obj.getJSONObject("data");
+
+                if (obj.toString() != null && !obj.isNull("rcode") && obj.get("rcode").equals("0100")) {
+                    genericResp.setCode(ICodeDescResponse.SUCCES_CODE);
+                    genericResp.setDescription(messageSource.getMessage("notify.success", null, locale));
+                    genericResp.setDateResponse(Instant.now());
+
+                    tracking = createTracking(tracking, ICodeDescResponse.SUCCES_CODE, request.getRequestURI(),
+                            genericResp.toString(), notifyRequest.toString(), genericResp.getResponseReference());
+                } else {
+                    genericResp.setCode(ICodeDescResponse.ECHEC_CODE);
+                    genericResp.setDateResponse(Instant.now());
+                    genericResp.setDescription(messageSource.getMessage("notify.error", null, locale));
+                    tracking = createTracking(tracking, ICodeDescResponse.ECHEC_CODE, request.getRequestURI(),
+                            genericResp.toString(), notifyRequest.toString(), genericResp.getResponseReference());
+                }
+            } else {
+                br = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
+                String ligne = br.readLine();
+                while (ligne != null) {
+                    result += ligne;
+                    ligne = br.readLine();
+                }
+                log.info("resp envoi error ===== [{}]", result);
+                obj = new JSONObject(result);
+
+                obj = new JSONObject(result);
+                genericResp.setCode(ICodeDescResponse.ECHEC_CODE);
+                genericResp.setDateResponse(Instant.now());
+                genericResp.setDescription(messageSource.getMessage("auth.error.exep", null, locale));
+                tracking = createTracking(tracking, ICodeDescResponse.ECHEC_CODE, request.getRequestURI(),
+                        genericResp.toString(), notifyRequest.toString(), genericResp.getResponseReference());
+            }
+        } catch (Exception e) {
+            log.error("Exception in create Loan [{}]", e);
+            genericResp.setCode(ICodeDescResponse.ECHEC_CODE);
+            genericResp.setDateResponse(Instant.now());
+            genericResp.setDescription(messageSource.getMessage("auth.error.exep", null, locale) + e.getMessage());
+            tracking = createTracking(tracking, ICodeDescResponse.ECHEC_CODE, request.getRequestURI(), e.getMessage(),
+                    notifyRequest.toString(), genericResp.getResponseReference());
+        }
+        trackingService.save(tracking);
+        return genericResp;
+	}
 
     private Locale defineLocale(String lang) {
         Locale locale = null;
@@ -455,7 +544,9 @@ public class ApiService {
         return null;
     }
 
-    public static void main(String[] args) {
+	
+
+    /*public static void main(String[] args) {
         String var = "La duree doit etre entre #12# et #36#.";
         Pattern pattern = Pattern.compile("et #(.*?)#");
         Matcher matcher = pattern.matcher(var);
@@ -473,7 +564,7 @@ public class ApiService {
         //System.out.println(StringUtils.substringMatch(var, 1, "#(.*?)#"));
         for (String string : tab) {
             System.out.println("ressssss====="+string);
-        }*/
+        }
         
-    }
+    }*/
 }

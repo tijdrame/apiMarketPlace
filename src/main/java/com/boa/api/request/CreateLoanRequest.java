@@ -18,12 +18,14 @@ public class CreateLoanRequest {
     private Double assurAmount;
     private String creditCode;
     private Double salaireNet;
-
+    private String codeProduit;
+    private String libelleProduit;
+    private String descriptionProduit;
 
     public CreateLoanRequest() {
     }
 
-    public CreateLoanRequest(String userCode, Integer duration, String client, String accountNum, Double amount, String docRef, String cliEmployer, String supplierCode, String supplierName, Double fees, String country, String langue, String assureur, Double assurAmount, String creditCode, Double salaireNet) {
+    public CreateLoanRequest(String userCode, Integer duration, String client, String accountNum, Double amount, String docRef, String cliEmployer, String supplierCode, String supplierName, Double fees, String country, String langue, String assureur, Double assurAmount, String creditCode, Double salaireNet, String codeProduit, String libelleProduit, String descriptionProduit) {
         this.userCode = userCode;
         this.duration = duration;
         this.client = client;
@@ -40,6 +42,9 @@ public class CreateLoanRequest {
         this.assurAmount = assurAmount;
         this.creditCode = creditCode;
         this.salaireNet = salaireNet;
+        this.codeProduit = codeProduit;
+        this.libelleProduit = libelleProduit;
+        this.descriptionProduit = descriptionProduit;
     }
 
     public String getUserCode() {
@@ -170,6 +175,30 @@ public class CreateLoanRequest {
         this.salaireNet = salaireNet;
     }
 
+    public String getCodeProduit() {
+        return this.codeProduit;
+    }
+
+    public void setCodeProduit(String codeProduit) {
+        this.codeProduit = codeProduit;
+    }
+
+    public String getLibelleProduit() {
+        return this.libelleProduit;
+    }
+
+    public void setLibelleProduit(String libelleProduit) {
+        this.libelleProduit = libelleProduit;
+    }
+
+    public String getDescriptionProduit() {
+        return this.descriptionProduit;
+    }
+
+    public void setDescriptionProduit(String descriptionProduit) {
+        this.descriptionProduit = descriptionProduit;
+    }
+
     public CreateLoanRequest userCode(String userCode) {
         this.userCode = userCode;
         return this;
@@ -250,6 +279,21 @@ public class CreateLoanRequest {
         return this;
     }
 
+    public CreateLoanRequest codeProduit(String codeProduit) {
+        this.codeProduit = codeProduit;
+        return this;
+    }
+
+    public CreateLoanRequest libelleProduit(String libelleProduit) {
+        this.libelleProduit = libelleProduit;
+        return this;
+    }
+
+    public CreateLoanRequest descriptionProduit(String descriptionProduit) {
+        this.descriptionProduit = descriptionProduit;
+        return this;
+    }
+
     @Override
     public String toString() {
         return "{" +
@@ -269,8 +313,10 @@ public class CreateLoanRequest {
             ", assurAmount='" + getAssurAmount() + "'" +
             ", creditCode='" + getCreditCode() + "'" +
             ", salaireNet='" + getSalaireNet() + "'" +
+            ", codeProduit='" + getCodeProduit() + "'" +
+            ", libelleProduit='" + getLibelleProduit() + "'" +
+            ", descriptionProduit='" + getDescriptionProduit() + "'" +
             "}";
     }
-
 
 }
