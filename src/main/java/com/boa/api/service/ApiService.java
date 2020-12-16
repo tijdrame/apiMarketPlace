@@ -388,16 +388,6 @@ public class ApiService {
                             genericResp.toString(), notifyRequest.toString(), genericResp.getResponseReference());
                 }
             } else {
-                br = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
-                String ligne = br.readLine();
-                while (ligne != null) {
-                    result += ligne;
-                    ligne = br.readLine();
-                }
-                log.info("resp envoi error ===== [{}]", result);
-                obj = new JSONObject(result);
-
-                obj = new JSONObject(result);
                 genericResp.setCode(ICodeDescResponse.ECHEC_CODE);
                 genericResp.setDateResponse(Instant.now());
                 genericResp.setDescription(messageSource.getMessage("auth.error.exep", null, locale));

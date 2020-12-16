@@ -98,19 +98,17 @@ public class ApiResource {
     public ResponseEntity<NotifyPickupResponse> notifyPickup(@RequestBody NotifyPickupRequest notifyRequest, HttpServletRequest request) {
         log.debug("REST request to notifyPickup : [{}]", notifyRequest);
         NotifyPickupResponse response = new NotifyPickupResponse();
-        /*if (controleParam(loanRequest.getUserCode()) || controleParam(loanRequest.getClient()) ||
-         controleParam(loanRequest.getAccountNum()) || controleParam(loanRequest.getDocRef())||
-         controleParam(loanRequest.getSupplierCode()) || controleParam(loanRequest.getSupplierName())||
-         controleParam(loanRequest.getCountry()) || controleParam(loanRequest.getDuration()) || 
-         controleParam(loanRequest.getAmount()) || controleParam(loanRequest.getFees()) || controleParam(loanRequest.getSalaireNet()) ||
-         controleParam(loanRequest.getAssurAmount()) || controleParam(loanRequest.getAssureur())
+        if (controleParam(notifyRequest.getDocRef()) || controleParam(notifyRequest.getReceiptNum()) ||
+         controleParam(notifyRequest.getDeliveryDate()) || controleParam(notifyRequest.getDeliveryAddress())||
+         controleParam(notifyRequest.getDeliveryUser()) || controleParam(notifyRequest.getStatus())||
+         controleParam(notifyRequest.getLangue())
          ) {
-            Locale locale = defineLocale(loanRequest.getLangue());
+            Locale locale = defineLocale(notifyRequest.getLangue());
             response.setCode(ICodeDescResponse.PARAM_ABSENT_CODE);
             response.setDateResponse(Instant.now());
             response.setDescription(messageSource.getMessage("param.oblig", null, locale));
             return ResponseEntity.badRequest().header("Authorization", request.getHeader("Authorization")).body(response);
-        }*/
+        }
         response = apiService.notifyPickup(notifyRequest, request);
         return ResponseEntity.ok().header("Authorization", request.getHeader("Authorization")).body(response);
     }
