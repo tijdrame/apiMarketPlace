@@ -20,7 +20,7 @@ public class Utils {
      * (){ return RandomStringUtils.randomAlphanumeric(16); }
      */
 
-    public HttpURLConnection doConnexion(String endPoint, String params, String appType, String appRetour)
+    public HttpURLConnection doConnexion(String endPoint, String params, String appType, String appRetour, String token)
             throws IOException {
         OutputStream os = null;
         HttpURLConnection conn = null;
@@ -33,6 +33,9 @@ public class Utils {
             conn.setRequestProperty("Content-Type", appType);
             if (!StringUtils.isEmpty(appRetour))
                 conn.setRequestProperty("Accept", appRetour);
+
+            if (!StringUtils.isEmpty(token))
+                conn.setRequestProperty("Authorization", token);
 
             // tracking.setRequestTr(jsonString);
             os = conn.getOutputStream();

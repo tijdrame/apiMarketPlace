@@ -6,11 +6,13 @@ import java.util.Locale;
 import javax.servlet.http.HttpServletRequest;
 
 import com.boa.api.request.CreateLoanRequest;
+import com.boa.api.request.LoanStatusRequest;
 import com.boa.api.request.NotifyPickupRequest;
 import com.boa.api.request.OAuthRequest;
 import com.boa.api.request.SearchClientRequest;
 import com.boa.api.response.CreateLoanResponse;
 import com.boa.api.response.GenericResponse;
+import com.boa.api.response.LoanStatusResponse;
 import com.boa.api.response.NotifyPickupResponse;
 import com.boa.api.response.OAuthResponse;
 import com.boa.api.response.SearchClientResponse;
@@ -111,6 +113,22 @@ public class ApiResource {
             return ResponseEntity.badRequest().header("Authorization", request.getHeader("Authorization")).body(response);
         }
         response = apiService.notifyPickup(notifyRequest, request);
+        return ResponseEntity.ok().header("Authorization", request.getHeader("Authorization")).body(response);
+    }
+
+    @PostMapping("/loanStatus")
+    public ResponseEntity<LoanStatusResponse> loanStatus(@RequestBody LoanStatusRequest loanRequest, HttpServletRequest request) {
+        log.debug("REST request to loanStatus : [{}]", loanRequest);
+        LoanStatusResponse response = new LoanStatusResponse();
+        if (controleParam(loanRequest.getReference()) || controleParam(loanRequest.getStatus()) 
+         ) {
+            Locale locale = defineLocale("en");
+            response.setCode(ICodeDescResponse.PARAM_ABSENT_CODE);
+            response.setDateResponse(Instant.now());
+            response.setDescription(messageSource.getMessage("param.oblig", null, locale));
+            return ResponseEntity.badRequest().header("Authorization", request.getHeader("Authorization")).body(response);
+        }
+        response = apiService.loanStatus(loanRequest, request);
         return ResponseEntity.ok().header("Authorization", request.getHeader("Authorization")).body(response);
     }
 
