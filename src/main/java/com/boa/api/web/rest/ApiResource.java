@@ -82,7 +82,8 @@ public class ApiResource {
          controleParam(loanRequest.getSupplierCode()) || controleParam(loanRequest.getSupplierName())||
          controleParam(loanRequest.getCountry()) || controleParam(loanRequest.getDuration()) || 
          controleParam(loanRequest.getAmount()) || controleParam(loanRequest.getFees()) || controleParam(loanRequest.getSalaireNet()) ||
-         controleParam(loanRequest.getAssurAmount()) || controleParam(loanRequest.getAssureur())
+         controleParam(loanRequest.getAssurAmount()) || controleParam(loanRequest.getAssureur()) || controleParam(loanRequest.getLangue())||
+         controleParam(loanRequest.getCodeProduit()) || controleParam(loanRequest.getLibelleProduit())
          ) {
             Locale locale = defineLocale(loanRequest.getLangue());
             response.setCode(ICodeDescResponse.PARAM_ABSENT_CODE);
