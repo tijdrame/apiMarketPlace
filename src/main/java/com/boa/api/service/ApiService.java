@@ -450,7 +450,8 @@ public class ApiService {
                     genericResp.setCode(ICodeDescResponse.SUCCES_CODE);
                     genericResp.setDescription(messageSource.getMessage("loan.status.success", null, locale));
                     genericResp.setDateResponse(Instant.now());
-                    genericResp.reference(obj.getString("reference")).status("status");
+                    genericResp.reference(obj.getString("reference"));
+                    genericResp.status(obj.getString("status"));
 
                     tracking = createTracking(tracking, ICodeDescResponse.SUCCES_CODE, request.getRequestURI(),
                             genericResp.toString(), loanRequest.toString(), genericResp.getResponseReference());
@@ -479,7 +480,7 @@ public class ApiService {
                         genericResp.toString(), loanRequest.toString(), genericResp.getResponseReference());
             }
         } catch (Exception e) {
-            log.error("Exception in notify pickup [{}]", e);
+            log.error("Exception in loanStatus [{}]", e);
             genericResp.setCode(ICodeDescResponse.ECHEC_CODE);
             genericResp.setDateResponse(Instant.now());
             genericResp.setDescription(messageSource.getMessage("auth.error.exep", null, locale) + e.getMessage());
