@@ -357,6 +357,9 @@ public class ApiService {
                     .put("deliveryAddress", notifyRequest.getDeliveryAddress())
                     .put("deliveryUser", notifyRequest.getDeliveryUser()).put("status", notifyRequest.getStatus())
                     .put("motif", notifyRequest.getMotif()).put("country", notifyRequest.getCountry())
+
+                    .put("idtype", notifyRequest.getTypePiece()).put("idnumber", notifyRequest.getNumeroPiece())
+                    .put("expiredate", notifyRequest.getDateExpiration())
                     .toString();
             HttpURLConnection conn = utils.doConnexion(endPoint.get().getEndPoints(), jsonStr, "application/json",
                     null, null);

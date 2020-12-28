@@ -60,7 +60,12 @@ spring:
     cache: false
 
 server:
-  port: 8088
+    port: 8087
+    #ssl:
+    #    key-store: classpath:config/tls/keystore.p12
+     #   key-store-password: THBS4life
+      #  key-store-type: PKCS12
+       # key-alias: aerd
 
 # ===================================================================
 # JHipster specific properties
