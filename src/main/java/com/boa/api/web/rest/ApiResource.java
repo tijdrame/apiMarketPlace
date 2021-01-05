@@ -3,6 +3,7 @@ package com.boa.api.web.rest;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -23,6 +24,8 @@ import com.boa.api.service.util.ICodeDescResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -160,6 +163,15 @@ public class ApiResource {
         }
         response = apiService.loanStatus(loanRequest, request);
         return ResponseEntity.ok().header("Authorization", request.getHeader("Authorization")).body(response);
+    }
+
+    @PostMapping("/testPdf")
+    public ResponseEntity html2pdf(@RequestBody Map<String, Object> data,  HttpServletRequest request) {
+        InputStreamResource resource = apiService.generateInvoice(data, request);
+        if(resource!=null) {
+            return ResponseEntity.ok().body(resource);
+        }
+        return new ResponseEntity(HttpStatus.SERVICE_UNAVAILABLE);
     }
 
     private Boolean controleParam(Object param) {

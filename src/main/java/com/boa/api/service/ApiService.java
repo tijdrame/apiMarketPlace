@@ -1,10 +1,14 @@
 package com.boa.api.service;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.time.Instant;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -19,7 +23,6 @@ import com.boa.api.request.NotifyPickupRequest;
 import com.boa.api.request.OAuthRequest;
 import com.boa.api.request.SearchClientRequest;
 import com.boa.api.response.CreateLoanResponse;
-import com.boa.api.response.GenericResponse;
 import com.boa.api.response.LoanStatusResponse;
 import com.boa.api.response.NotifyPickupResponse;
 import com.boa.api.response.OAuthResponse;
@@ -28,15 +31,21 @@ import com.boa.api.response.model.Account;
 import com.boa.api.response.model.Client;
 import com.boa.api.service.util.ICodeDescResponse;
 import com.boa.api.service.util.Utils;
+import com.itextpdf.html2pdf.HtmlConverter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.context.MessageSource;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
+import org.springframework.util.ResourceUtils;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
+
 
 @Service
 @Transactional
@@ -48,14 +57,21 @@ public class ApiService {
     private final Utils utils;
     private final ParamEndPointService endPointService;
     private final MessageSource messageSource;
+    private final TemplateEngine templateEngine;
+    //private final ServletContext servletContext;
+    //private final JHipsterProperties jHipsterProperties;
 
     public ApiService(TrackingService trackingService, UserService userService, Utils utils,
-            ParamEndPointService endPointService, MessageSource messageSource) {
+            ParamEndPointService endPointService, MessageSource messageSource, TemplateEngine templateEngine
+            /*ServletContext servletContext, JHipsterProperties jHipsterProperties*/) {
         this.trackingService = trackingService;
         this.userService = userService;
         this.utils = utils;
         this.endPointService = endPointService;
         this.messageSource = messageSource;
+        this.templateEngine = templateEngine;
+        /*this.servletContext = servletContext;
+        this.jHipsterProperties = jHipsterProperties;*/
     }
 
     public OAuthResponse oAuth(OAuthRequest authRequest, HttpServletRequest request) {
@@ -79,8 +95,8 @@ public class ApiService {
         try {
             String jsonStr = new JSONObject().put("login", authRequest.getLogin())
                     .put("pass", authRequest.getPassword()).put("country", authRequest.getCountry()).toString();
-            HttpURLConnection conn = utils.doConnexion(endPoint.get().getEndPoints(), jsonStr, "application/json",
-                    null, null);
+            HttpURLConnection conn = utils.doConnexion(endPoint.get().getEndPoints(), jsonStr, "application/json", null,
+                    null);
             BufferedReader br = null;
             JSONObject obj = new JSONObject();
             String result = "";
@@ -168,8 +184,8 @@ public class ApiService {
         try {
             String jsonStr = new JSONObject().put("customerId", clientRequest.getClient())
                     .put("country", clientRequest.getCountry()).put("userCode", clientRequest.getUserCode()).toString();
-            HttpURLConnection conn = utils.doConnexion(endPoint.get().getEndPoints(), jsonStr, "application/json",
-                    null, null);
+            HttpURLConnection conn = utils.doConnexion(endPoint.get().getEndPoints(), jsonStr, "application/json", null,
+                    null);
             BufferedReader br = null;
             JSONObject obj = new JSONObject();
             String result = "";
@@ -270,10 +286,9 @@ public class ApiService {
                     .put("lassureur", loanRequest.getAssureur()).put("lassuramount", loanRequest.getAssurAmount())
                     .put("creditCode", loanRequest.getCreditCode()).put("salnet", loanRequest.getSalaireNet())
                     .put("pcode", loanRequest.getCodeProduit()).put("pname", loanRequest.getLibelleProduit())
-                    .put("pdescription", loanRequest.getDescriptionProduit())
-                    .toString();
-            HttpURLConnection conn = utils.doConnexion(endPoint.get().getEndPoints(), jsonStr, "application/json",
-                    null, null);
+                    .put("pdescription", loanRequest.getDescriptionProduit()).toString();
+            HttpURLConnection conn = utils.doConnexion(endPoint.get().getEndPoints(), jsonStr, "application/json", null,
+                    null);
             BufferedReader br = null;
             JSONObject obj = new JSONObject();
             String result = "";
@@ -334,7 +349,7 @@ public class ApiService {
     }
 
     public NotifyPickupResponse notifyPickup(NotifyPickupRequest notifyRequest, HttpServletRequest request) {
-		log.info("Enter in notifyPickup=== [{}]", notifyRequest);
+        log.info("Enter in notifyPickup=== [{}]", notifyRequest);
         Locale locale = defineLocale(notifyRequest.getLangue());
 
         NotifyPickupResponse genericResp = new NotifyPickupResponse();
@@ -347,22 +362,22 @@ public class ApiService {
             genericResp.setDescription(messageSource.getMessage("service.absent", null, locale));
             genericResp.setDateResponse(Instant.now());
             tracking = createTracking(tracking, ICodeDescResponse.ECHEC_CODE, "notifyPickup", genericResp.toString(),
-            notifyRequest.toString(), genericResp.getResponseReference());
+                    notifyRequest.toString(), genericResp.getResponseReference());
             trackingService.save(tracking);
             return genericResp;
         }
         try {
             String jsonStr = new JSONObject().put("docRef", notifyRequest.getDocRef())
-                    .put("receiptNum", notifyRequest.getReceiptNum()).put("deliveryDate", notifyRequest.getDeliveryDate())
+                    .put("receiptNum", notifyRequest.getReceiptNum())
+                    .put("deliveryDate", notifyRequest.getDeliveryDate())
                     .put("deliveryAddress", notifyRequest.getDeliveryAddress())
                     .put("deliveryUser", notifyRequest.getDeliveryUser()).put("status", notifyRequest.getStatus())
                     .put("motif", notifyRequest.getMotif()).put("country", notifyRequest.getCountry())
 
                     .put("idtype", notifyRequest.getTypePiece()).put("idnumber", notifyRequest.getNumeroPiece())
-                    .put("expiredate", notifyRequest.getDateExpiration())
-                    .toString();
-            HttpURLConnection conn = utils.doConnexion(endPoint.get().getEndPoints(), jsonStr, "application/json",
-                    null, null);
+                    .put("expiredate", notifyRequest.getDateExpiration()).toString();
+            HttpURLConnection conn = utils.doConnexion(endPoint.get().getEndPoints(), jsonStr, "application/json", null,
+                    null);
             BufferedReader br = null;
             JSONObject obj = new JSONObject();
             String result = "";
@@ -410,9 +425,9 @@ public class ApiService {
         trackingService.save(tracking);
         return genericResp;
     }
-    
+
     public LoanStatusResponse loanStatus(LoanStatusRequest loanRequest, HttpServletRequest request) {
-		log.info("Enter in loanStatus=== [{}]", loanRequest);
+        log.info("Enter in loanStatus=== [{}]", loanRequest);
         Locale locale = defineLocale("en");
 
         LoanStatusResponse genericResp = new LoanStatusResponse();
@@ -425,16 +440,15 @@ public class ApiService {
             genericResp.setDescription(messageSource.getMessage("service.absent", null, locale));
             genericResp.setDateResponse(Instant.now());
             tracking = createTracking(tracking, ICodeDescResponse.ECHEC_CODE, "loanStatus", genericResp.toString(),
-            loanRequest.toString(), genericResp.getResponseReference());
+                    loanRequest.toString(), genericResp.getResponseReference());
             trackingService.save(tracking);
             return genericResp;
         }
         try {
             String jsonStr = new JSONObject().put("reference", loanRequest.getStatus())
-                    .put("status", loanRequest.getStatus())
-                    .toString();
-            HttpURLConnection conn = utils.doConnexion(endPoint.get().getEndPoints(), jsonStr, "application/json",
-                    null, endPoint.get().getAttribute01());
+                    .put("status", loanRequest.getStatus()).toString();
+            HttpURLConnection conn = utils.doConnexion(endPoint.get().getEndPoints(), jsonStr, "application/json", null,
+                    endPoint.get().getAttribute01());
             BufferedReader br = null;
             JSONObject obj = new JSONObject();
             String result = "";
@@ -458,7 +472,7 @@ public class ApiService {
 
                     tracking = createTracking(tracking, ICodeDescResponse.SUCCES_CODE, request.getRequestURI(),
                             genericResp.toString(), loanRequest.toString(), genericResp.getResponseReference());
-                } else if(obj.toString() != null && !obj.isNull("reference")) {
+                } else if (obj.toString() != null && !obj.isNull("reference")) {
                     genericResp.setCode(ICodeDescResponse.ECHEC_CODE);
                     genericResp.setDateResponse(Instant.now());
                     genericResp.setDescription(messageSource.getMessage("auth.error.exep", null, locale));
@@ -466,7 +480,7 @@ public class ApiService {
 
                     tracking = createTracking(tracking, ICodeDescResponse.ECHEC_CODE, request.getRequestURI(),
                             genericResp.toString(), loanRequest.toString(), genericResp.getResponseReference());
-                }else if(obj.toString() != null && !obj.isNull("detail")) {
+                } else if (obj.toString() != null && !obj.isNull("detail")) {
                     genericResp.setCode(ICodeDescResponse.ECHEC_CODE);
                     genericResp.setDateResponse(Instant.now());
                     genericResp.setDescription(messageSource.getMessage("auth.error.exep", null, locale));
@@ -492,8 +506,7 @@ public class ApiService {
         }
         trackingService.save(tracking);
         return genericResp;
-	}
-
+    }
 
     private Locale defineLocale(String lang) {
         Locale locale = null;
@@ -506,64 +519,64 @@ public class ApiService {
 
     private String getMsgErrorLoan(JSONObject obj, Locale locale) throws JSONException {
         String retour = obj.getString("rcode");
-        if(retour.equals("0200")){
+        if (retour.equals("0200")) {
             return messageSource.getMessage("loan.code.error", null, locale);
-        } else if(retour.equals("0201")){
+        } else if (retour.equals("0201")) {
             return messageSource.getMessage("loan.credit.error", null, locale);
-        }else if(retour.equals("0202")){
+        } else if (retour.equals("0202")) {
             return messageSource.getMessage("loan.compte.error", null, locale);
-        }else if(retour.equals("0203")){
+        } else if (retour.equals("0203")) {
             return messageSource.getMessage("loan.tit.error", null, locale);
-        }else if(retour.equals("0204")){
+        } else if (retour.equals("0204")) {
             return messageSource.getMessage("loan.emp.error", null, locale);
-        }else if(retour.equals("0205")){
+        } else if (retour.equals("0205")) {
             return messageSource.getMessage("loan.error.205", null, locale);
-        }else if(retour.equals("0206")){
+        } else if (retour.equals("0206")) {
             String msg = obj.getString("rmessage");
             String valMin = getMatcher("#(.*?)#", msg);
             String valMax = getMatcher("et #(.*?)#", msg);
-            final String[]params = new String[]{valMin!=null?valMin:"x", valMax!=null?valMax:"y"};
+            final String[] params = new String[] { valMin != null ? valMin : "x", valMax != null ? valMax : "y" };
             return messageSource.getMessage("loan.error.206", params, locale);
-        }else if(retour.equals("0207")){
+        } else if (retour.equals("0207")) {
             return messageSource.getMessage("loan.error.207", null, locale);
-        }else if(retour.equals("0208")){
+        } else if (retour.equals("0208")) {
             String msg = obj.getString("rmessage");
             String valMin = getMatcher("#(.*?)#", msg);
             String valMax = getMatcher("et #(.*?)#", msg);
-            final String[]params = new String[]{valMin!=null?valMin:"x", valMax!=null?valMax:"y"};
+            final String[] params = new String[] { valMin != null ? valMin : "x", valMax != null ? valMax : "y" };
             return messageSource.getMessage("loan.error.208", params, locale);
-        }else if(retour.equals("0209")){
+        } else if (retour.equals("0209")) {
             String msg = obj.getString("rmessage");
             String valMin = getMatcher("#(.*?)#", msg);
-            final String[]params = new String[]{valMin!=null?valMin:"x"};
+            final String[] params = new String[] { valMin != null ? valMin : "x" };
             return messageSource.getMessage("loan.error.209", params, locale);
-        }else if(retour.equals("0210")){
+        } else if (retour.equals("0210")) {
             String msg = obj.getString("rmessage");
             String valMin = getMatcher("#(.*?)#", msg);
-            final String[]params = new String[]{valMin!=null?valMin:"x"};
+            final String[] params = new String[] { valMin != null ? valMin : "x" };
             return messageSource.getMessage("loan.error.210", params, locale);
-        }else if(retour.equals("0211")){
+        } else if (retour.equals("0211")) {
             return messageSource.getMessage("loan.error.211", null, locale);
-        }else if(retour.equals("0212")){
+        } else if (retour.equals("0212")) {
             String msg = obj.getString("rmessage");
             String valMin = getMatcher("#(.*?)#", msg);
             String valMax = getMatcher("des #(.*?)#", msg);
-            final String[]params = new String[]{valMin!=null?valMin:"x", valMax!=null?valMax:"y"};
+            final String[] params = new String[] { valMin != null ? valMin : "x", valMax != null ? valMax : "y" };
             return messageSource.getMessage("loan.error.212", params, locale);
-        }else if(retour.equals("0213")){
+        } else if (retour.equals("0213")) {
             String msg = obj.getString("rmessage");
             String valMin = getMatcher("#(.*?)#", msg);
-            final String[]params = new String[]{valMin!=null?valMin:"x"};
+            final String[] params = new String[] { valMin != null ? valMin : "x" };
             return messageSource.getMessage("loan.error.213", params, locale);
-        }else if(retour.equals("0214")){
+        } else if (retour.equals("0214")) {
             String msg = obj.getString("rmessage");
             String age = getMatcher("#(.*?)#", msg);
             String valMin = getMatcher("entre #(.*?)#", msg);
             String valMax = getMatcher("et #(.*?)#", msg);
-            final String[]params = new String[]{age!=null?age:"x",valMin!=null?valMin:"x", valMax!=null?valMax:"y"};
+            final String[] params = new String[] { age != null ? age : "x", valMin != null ? valMin : "x",
+                    valMax != null ? valMax : "y" };
             return messageSource.getMessage("loan.error.214", params, locale);
-        }
-        else {
+        } else {
             return messageSource.getMessage("auth.error.exep", null, locale);
         }
     }
@@ -575,25 +588,25 @@ public class ApiService {
                 return messageSource.getMessage("auth.error.0202", null, locale);
             } else if (obj.toString() != null && !obj.isNull("rcode") && obj.get("rcode").equals("0203")) {
                 return messageSource.getMessage("auth.error.0203", null, locale);
-            }else if (obj.toString() != null && !obj.isNull("rcode") && obj.get("rcode").equals("0204")) {
+            } else if (obj.toString() != null && !obj.isNull("rcode") && obj.get("rcode").equals("0204")) {
                 String msg = obj.getString("rmessage");
-            final String[] params = new String[]{msg};
+                final String[] params = new String[] { msg };
                 return messageSource.getMessage("auth.error.0204", params, locale);
-            }else if (obj.toString() != null && !obj.isNull("rcode") && obj.get("rcode").equals("0205")) {
+            } else if (obj.toString() != null && !obj.isNull("rcode") && obj.get("rcode").equals("0205")) {
                 return messageSource.getMessage("auth.error.0205", null, locale);
-            }else if (obj.toString() != null && !obj.isNull("rcode") && obj.get("rcode").equals("0206")) {
+            } else if (obj.toString() != null && !obj.isNull("rcode") && obj.get("rcode").equals("0206")) {
                 return messageSource.getMessage("auth.error.0206", null, locale);
-            }else if (obj.toString() != null && !obj.isNull("rcode") && obj.get("rcode").equals("0207")) {
+            } else if (obj.toString() != null && !obj.isNull("rcode") && obj.get("rcode").equals("0207")) {
                 return messageSource.getMessage("auth.error.0207", null, locale);
-            }else if (obj.toString() != null && !obj.isNull("rcode") && obj.get("rcode").equals("0208")) {
+            } else if (obj.toString() != null && !obj.isNull("rcode") && obj.get("rcode").equals("0208")) {
                 return messageSource.getMessage("auth.error.0208", null, locale);
-            }else if (obj.toString() != null && !obj.isNull("rcode") && obj.get("rcode").equals("0209")) {
+            } else if (obj.toString() != null && !obj.isNull("rcode") && obj.get("rcode").equals("0209")) {
                 return messageSource.getMessage("auth.error.0209", null, locale);
-            }else if (obj.toString() != null && !obj.isNull("rcode") && obj.get("rcode").equals("0210")) {
+            } else if (obj.toString() != null && !obj.isNull("rcode") && obj.get("rcode").equals("0210")) {
                 return messageSource.getMessage("auth.error.0210", null, locale);
-            }else if (obj.toString() != null && !obj.isNull("rcode") && obj.get("rcode").equals("0211")) {
+            } else if (obj.toString() != null && !obj.isNull("rcode") && obj.get("rcode").equals("0211")) {
                 return messageSource.getMessage("auth.error.0211", null, locale);
-            }else if (obj.toString() != null && !obj.isNull("rcode") && obj.get("rcode").equals("0101")) {
+            } else if (obj.toString() != null && !obj.isNull("rcode") && obj.get("rcode").equals("0101")) {
                 return messageSource.getMessage("auth.error.0101", null, locale);
             }
         } catch (Exception e) {
@@ -602,9 +615,22 @@ public class ApiService {
         return messageSource.getMessage("auth.error.exep", null, locale);
     }
 
-    public Tracking createTracking(Tracking tracking, String code, String endPoint, String result,
-            String req
-    , String reqId) {
+    private String getMsgNotify(JSONObject obj, Locale locale) {
+        log.info("in getMsgNotify [{}]", obj.toString());
+        try {
+            if (obj.toString() != null && !obj.isNull("rcode") && obj.get("rcode").equals("0202")) {
+                return messageSource.getMessage("notify.error", null, locale);
+            } else if (obj.toString() != null && !obj.isNull("rcode") && obj.get("rcode").equals("0203")) {
+                return messageSource.getMessage("auth.error.0203", null, locale);
+            }
+        } catch (Exception e) {
+            return messageSource.getMessage("auth.error.exep", null, locale) + e.getMessage();
+        }
+        return messageSource.getMessage("auth.error.exep", null, locale);
+    }
+
+    public Tracking createTracking(Tracking tracking, String code, String endPoint, String result, String req,
+            String reqId) {
         // Tracking tracking = new Tracking();
         tracking.setRequestId(reqId);
         tracking.setCodeResponse(code);
@@ -616,12 +642,39 @@ public class ApiService {
         return tracking;
     }
 
-    private String getMatcher(String args, String chaine){
+    private String getMatcher(String args, String chaine) {
         Pattern pattern = Pattern.compile(args);
         Matcher matcher = pattern.matcher(chaine);
-        if (matcher.find()) return  matcher.group(1);
+        if (matcher.find())
+            return matcher.group(1);
         return null;
-    }	
+    }
+
+    public InputStreamResource generateInvoice(Map<String, Object> data, HttpServletRequest request) {
+        Context context = new Context();
+        
+        String baseUrl = "";
+        try {
+            log.info("context ===================================== [{}]",
+                    ResourceUtils.getFile("classpath:static/images/logo.png").getPath());
+            baseUrl = ResourceUtils.getFile("classpath:static/images/logo.png").getAbsolutePath();
+        } catch (FileNotFoundException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+        data.put("baseUrl", baseUrl);
+        context.setVariables(data);
+        String html = templateEngine.process("pdf/samaPdf", context);
+        log.info("html = [{}}]",html);
+        
+        try {
+            HtmlConverter.convertToPdf(html, new FileOutputStream("C:/testPdf/test.pdf"));
+            return new InputStreamResource(new FileInputStream("C:/testPdf/test.pdf"));
+        } catch (Exception e) {
+            log.info("ERROR [{}], [{}], [{}]",Level.ERROR, e.getMessage(), e);
+        }
+        return null;
+    }
 
     /*public static void main(String[] args) {
         String var = "La duree doit etre entre #12# et #36#.";
