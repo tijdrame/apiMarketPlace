@@ -21,6 +21,7 @@ import com.boa.api.request.CreateLoanRequest;
 import com.boa.api.request.LoanStatusRequest;
 import com.boa.api.request.NotifyPickupRequest;
 import com.boa.api.request.OAuthRequest;
+import com.boa.api.request.PdfRequest;
 import com.boa.api.request.SearchClientRequest;
 import com.boa.api.response.CreateLoanResponse;
 import com.boa.api.response.LoanStatusResponse;
@@ -675,6 +676,33 @@ public class ApiService {
         }
         return null;
     }
+
+	public InputStreamResource generateInvoiceBis(PdfRequest pdfRequest, HttpServletRequest request) {
+		Context context = new Context();
+        
+        String baseUrl = "";
+        try {
+            log.info("context ===================================== [{}]",
+                    ResourceUtils.getFile("classpath:static/images/logo.png").getPath());
+            baseUrl = ResourceUtils.getFile("classpath:static/images/logo.png").getAbsolutePath();
+        } catch (FileNotFoundException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+        //data.put("baseUrl", baseUrl);
+        context.setVariable("data", pdfRequest);
+        context.setVariable("baseUrl", baseUrl);
+        String html = templateEngine.process("pdf/samaPdfBis", context);
+        log.info("html = [{}}]",html);
+        
+        try {
+            HtmlConverter.convertToPdf(html, new FileOutputStream("C:/testPdf/test.pdf"));
+            return new InputStreamResource(new FileInputStream("C:/testPdf/test.pdf"));
+        } catch (Exception e) {
+            log.info("ERROR [{}], [{}], [{}]",Level.ERROR, e.getMessage(), e);
+        }
+        return null;
+	}
 
     /*public static void main(String[] args) {
         String var = "La duree doit etre entre #12# et #36#.";

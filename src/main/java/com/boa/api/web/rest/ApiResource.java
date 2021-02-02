@@ -11,9 +11,9 @@ import com.boa.api.request.CreateLoanRequest;
 import com.boa.api.request.LoanStatusRequest;
 import com.boa.api.request.NotifyPickupRequest;
 import com.boa.api.request.OAuthRequest;
+import com.boa.api.request.PdfRequest;
 import com.boa.api.request.SearchClientRequest;
 import com.boa.api.response.CreateLoanResponse;
-import com.boa.api.response.GenericResponse;
 import com.boa.api.response.LoanStatusResponse;
 import com.boa.api.response.NotifyPickupResponse;
 import com.boa.api.response.OAuthResponse;
@@ -170,6 +170,15 @@ public class ApiResource {
         InputStreamResource resource = apiService.generateInvoice(data, request);
         if(resource!=null) {
             return ResponseEntity.ok().body(resource);
+        }
+        return new ResponseEntity(HttpStatus.SERVICE_UNAVAILABLE);
+    }
+
+    @PostMapping("/testPdfBis")
+    public ResponseEntity html2pdfBis(@RequestBody PdfRequest pdfRequest,  HttpServletRequest request) {
+        InputStreamResource resource = apiService.generateInvoiceBis(pdfRequest, request);
+        if(resource!=null) {
+            return ResponseEntity.ok().header("Authorization", request.getHeader("Authorization")).body(resource);
         }
         return new ResponseEntity(HttpStatus.SERVICE_UNAVAILABLE);
     }

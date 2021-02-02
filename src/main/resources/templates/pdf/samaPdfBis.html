@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.thymeleaf.org" th:lang="${#locale.language}" lang="en">
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Page Title</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <!-- <link rel='stylesheet' type='text/css' media='screen' href='main.css'>
+    <script src='main.js'></script> -->
+</head>
+<body>
+    <div>
+        <img width="100" th:src="${baseUrl}" alt="LOGO">
+        <!--img  width="100" th:src="@{target/classes/static/images/logo.png}"/-->
+        <!--img th:src="@{D:\BOA\Dev\apiMarketPlace\target\classes\static\img\logo.png}"  alt="LOGO"-->
+    </div>
+    <div id="container">
+        <section id="memo">
+            <div style="font-weight: bold;text-align: center;">
+                [(${data.nom})]
+            </div>
+            <!-- <div style="font-weight: bold;text-align: center;">
+                [(${name2})]
+            </div>
+            <div style="font-weight: bold;text-align: center;">
+                [(${name3})] 
+            </div> -->
+        </section>
+    </div>
+    
+    <!-- <div class="company-info">
+        <div>
+            <span>[(${prenom})]</span>
+        </div>
+        <div>[(${nom})]</div>
+    </div>
+   
+    <table border="1">
+        <tr th:each="it, iStat: ${tab}" th:style="${iStat.odd}? 'font-weight: bold;'" 
+        th:alt-title="${iStat.even}? 'even' : 'odd'">
+            <td th:text="${it.name}" />
+            <td th:text="${it.age}" />
+        </tr>
+    </table> -->
+        <!-- <tr 
+  th:each="student, iStat : ${students}" 
+  th:style="${iStat.odd}? 'font-weight: bold;'" 
+  th:alt-title="${iStat.even}? 'even' : 'odd'">
+    <td th:text="${student.id}" />
+    <td th:text="${student.name}" />
+</tr> -->
+</body>
+</html>
