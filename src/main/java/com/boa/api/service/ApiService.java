@@ -37,6 +37,7 @@ import com.itextpdf.html2pdf.HtmlConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.context.MessageSource;
@@ -46,7 +47,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ResourceUtils;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
-
 
 @Service
 @Transactional
@@ -59,20 +59,22 @@ public class ApiService {
     private final ParamEndPointService endPointService;
     private final MessageSource messageSource;
     private final TemplateEngine templateEngine;
-    //private final ServletContext servletContext;
-    //private final JHipsterProperties jHipsterProperties;
+    // private final ServletContext servletContext;
+    // private final JHipsterProperties jHipsterProperties;
 
     public ApiService(TrackingService trackingService, UserService userService, Utils utils,
             ParamEndPointService endPointService, MessageSource messageSource, TemplateEngine templateEngine
-            /*ServletContext servletContext, JHipsterProperties jHipsterProperties*/) {
+    /* ServletContext servletContext, JHipsterProperties jHipsterProperties */) {
         this.trackingService = trackingService;
         this.userService = userService;
         this.utils = utils;
         this.endPointService = endPointService;
         this.messageSource = messageSource;
         this.templateEngine = templateEngine;
-        /*this.servletContext = servletContext;
-        this.jHipsterProperties = jHipsterProperties;*/
+        /*
+         * this.servletContext = servletContext; this.jHipsterProperties =
+         * jHipsterProperties;
+         */
     }
 
     public OAuthResponse oAuth(OAuthRequest authRequest, HttpServletRequest request) {
@@ -207,16 +209,28 @@ public class ApiService {
                     genericResp.setDescription(messageSource.getMessage("client.success", null, locale));
                     genericResp.setDateResponse(Instant.now());
 
+                    JSONArray jsonArray = null;
+                    JSONObject jsonObject = null;
                     Client client = new Client();
+
+                    if (obj.getJSONObject("Accounts").get("account") instanceof JSONArray) {
+                        jsonArray = obj.getJSONObject("Accounts").getJSONArray("account");
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            Account account = buildAccount(jsonArray.getJSONObject(i));
+                            client.getAccounts().add(account);
+                        }
+                    } else {
+                        jsonObject = obj.getJSONObject("Accounts").getJSONObject("account");
+                        Account account = buildAccount(jsonObject);
+                        client.getAccounts().add(account);
+                    }
                     client.civilite(obj.getString("civility")).firstName(obj.getString("fname"))
                             .lastName(obj.getString("name")).phoneNumber(obj.getString("phonenumber"));
 
-                    Account account = new Account();
                     // TODO obj.getJSONObject("rdata") doit être une liste
-                    account.accountNum(obj.getJSONObject("rdata").getString("accountnumber"))
+                    /* account.accountNum(obj.getJSONObject("rdata").getString("accountnumber"))
                             .branchName(obj.getJSONObject("rdata").getString("branchname"))
-                            .accountname(obj.getJSONObject("rdata").getString("accountname"));
-                    client.getAccounts().add(account);
+                            .accountname(obj.getJSONObject("rdata").getString("accountname"));*/
 
                     genericResp.client(client);
                     tracking = createTracking(tracking, ICodeDescResponse.SUCCES_CODE, request.getRequestURI(),
@@ -257,6 +271,18 @@ public class ApiService {
         }
         trackingService.save(tracking);
         return genericResp;
+    }
+
+    private Account buildAccount(JSONObject obj) {
+        Account account = new Account();
+        try {
+            account.accountNum(obj.getString("accountnumber")).branchName(obj.getString("branchname"))
+                    .accountname(obj.getString("accountname"));
+        } catch (JSONException e) {
+            log.error("Error in build account [{}]", e.getMessage());
+            return null;
+        }
+        return account;
     }
 
     public CreateLoanResponse createLoan(CreateLoanRequest loanRequest, HttpServletRequest request) {
@@ -653,7 +679,7 @@ public class ApiService {
 
     public InputStreamResource generateInvoice(Map<String, Object> data, HttpServletRequest request) {
         Context context = new Context();
-        
+
         String baseUrl = "";
         try {
             log.info("context ===================================== [{}]",
@@ -666,20 +692,20 @@ public class ApiService {
         data.put("baseUrl", baseUrl);
         context.setVariables(data);
         String html = templateEngine.process("pdf/samaPdf", context);
-        log.info("html = [{}}]",html);
-        
+        log.info("html = [{}}]", html);
+
         try {
             HtmlConverter.convertToPdf(html, new FileOutputStream("C:/testPdf/test.pdf"));
             return new InputStreamResource(new FileInputStream("C:/testPdf/test.pdf"));
         } catch (Exception e) {
-            log.info("ERROR [{}], [{}], [{}]",Level.ERROR, e.getMessage(), e);
+            log.info("ERROR [{}], [{}], [{}]", Level.ERROR, e.getMessage(), e);
         }
         return null;
     }
 
-	public InputStreamResource generateInvoiceBis(PdfRequest pdfRequest, HttpServletRequest request) {
-		Context context = new Context();
-        
+    public InputStreamResource generateInvoiceBis(PdfRequest pdfRequest, HttpServletRequest request) {
+        Context context = new Context();
+
         String baseUrl = "";
         try {
             log.info("context ===================================== [{}]",
@@ -689,40 +715,36 @@ public class ApiService {
             // TODO Auto-generated catch block
             e1.printStackTrace();
         }
-        //data.put("baseUrl", baseUrl);
+        // data.put("baseUrl", baseUrl);
         context.setVariable("data", pdfRequest);
         context.setVariable("baseUrl", baseUrl);
         String html = templateEngine.process("pdf/samaPdfBis", context);
-        log.info("html = [{}}]",html);
-        
+        log.info("html = [{}}]", html);
+
         try {
             HtmlConverter.convertToPdf(html, new FileOutputStream("C:/testPdf/test.pdf"));
             return new InputStreamResource(new FileInputStream("C:/testPdf/test.pdf"));
         } catch (Exception e) {
-            log.info("ERROR [{}], [{}], [{}]",Level.ERROR, e.getMessage(), e);
+            log.info("ERROR [{}], [{}], [{}]", Level.ERROR, e.getMessage(), e);
         }
         return null;
-	}
+    }
 
-    /*public static void main(String[] args) {
-        String var = "La duree doit etre entre #12# et #36#.";
-        Pattern pattern = Pattern.compile("et #(.*?)#");
-        Matcher matcher = pattern.matcher(var);
-        //Matcher matcher = pattern.matches("#(.*?)#", var);
-        if (matcher.find())
-        {
-            System.out.println("res1. == " + matcher.group(1));
-            // System.out.println("res2 =="+matcher.group(2));
-        }       
-
-        //String [] dataIWant = var.split("#(.*?)#");
-		//System.out.println("dataIWant: " + var.substring("#(.*?)#", 0) );
-
-        /*String []tab = StringUtils.split(var, "#(.*?)#");
-        //System.out.println(StringUtils.substringMatch(var, 1, "#(.*?)#"));
-        for (String string : tab) {
-            System.out.println("ressssss====="+string);
-        }
-        
-    }*/
+    /*
+     * public static void main(String[] args) { String var =
+     * "La duree doit etre entre #12# et #36#."; Pattern pattern =
+     * Pattern.compile("et #(.*?)#"); Matcher matcher = pattern.matcher(var);
+     * //Matcher matcher = pattern.matches("#(.*?)#", var); if (matcher.find()) {
+     * System.out.println("res1. == " + matcher.group(1)); //
+     * System.out.println("res2 =="+matcher.group(2)); }
+     * 
+     * //String [] dataIWant = var.split("#(.*?)#");
+     * //System.out.println("dataIWant: " + var.substring("#(.*?)#", 0) );
+     * 
+     * /*String []tab = StringUtils.split(var, "#(.*?)#");
+     * //System.out.println(StringUtils.substringMatch(var, 1, "#(.*?)#")); for
+     * (String string : tab) { System.out.println("ressssss====="+string); }
+     * 
+     * }
+     */
 }
