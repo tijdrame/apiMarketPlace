@@ -263,8 +263,6 @@ public class ApiService {
             log.error("Exception in oAuth [{}]", e);
             genericResp.setCode(ICodeDescResponse.ECHEC_CODE);
             genericResp.setDateResponse(Instant.now());
-            // genericResp.setDescription(ICodeDescResponse.ECHEC_DESCRIPTION + " " +
-            // e.getMessage());
             genericResp.setDescription(messageSource.getMessage("auth.error.exep", null, locale) + e.getMessage());
             tracking = createTracking(tracking, ICodeDescResponse.ECHEC_CODE, request.getRequestURI(), e.getMessage(),
                     clientRequest.toString(), genericResp.getResponseReference());
