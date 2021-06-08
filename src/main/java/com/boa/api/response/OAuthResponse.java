@@ -2,12 +2,15 @@ package com.boa.api.response;
 
 public class OAuthResponse extends GenericResponse {
     private String userCode;
+    private String rCode;
+
 
     public OAuthResponse() {
     }
 
-    public OAuthResponse(String userCode) {
+    public OAuthResponse(String userCode, String rCode) {
         this.userCode = userCode;
+        this.rCode = rCode;
     }
 
     public String getUserCode() {
@@ -18,8 +21,21 @@ public class OAuthResponse extends GenericResponse {
         this.userCode = userCode;
     }
 
+    public String getRCode() {
+        return this.rCode;
+    }
+
+    public void setRCode(String rCode) {
+        this.rCode = rCode;
+    }
+
     public OAuthResponse userCode(String userCode) {
-        this.userCode = userCode;
+        setUserCode(userCode);
+        return this;
+    }
+
+    public OAuthResponse rCode(String rCode) {
+        setRCode(rCode);
         return this;
     }
 
@@ -27,7 +43,9 @@ public class OAuthResponse extends GenericResponse {
     public String toString() {
         return "{" +
             " userCode='" + getUserCode() + "'" +
+            ", rCode='" + getRCode() + "'" +
             "}";
     }
+   
 
 }

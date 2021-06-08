@@ -121,13 +121,15 @@ public class ApiService {
                     genericResp.setDescription(messageSource.getMessage("auth.success", null, locale));
                     genericResp.setDateResponse(Instant.now());
                     genericResp.setUserCode(obj.getString("rucode"));
+                    genericResp.setRCode(obj.getString("rcode"));
                     tracking = createTracking(tracking, ICodeDescResponse.SUCCES_CODE, request.getRequestURI(),
                             genericResp.toString(), authRequest.toString(), genericResp.getResponseReference());
-                } else {
+                } else if (!obj.isNull("rcode") && !obj.get("rcode").equals("0100")) {
                     String ret = getMsgEchecAuth(obj, locale);
                     genericResp.setCode(ICodeDescResponse.ECHEC_CODE);
                     genericResp.setDateResponse(Instant.now());
                     genericResp.setDescription(ret);
+                    genericResp.setRCode(obj.getString("rcode"));
                     tracking = createTracking(tracking, ICodeDescResponse.ECHEC_CODE, request.getRequestURI(),
                             genericResp.toString(), authRequest.toString(), genericResp.getResponseReference());
                 }
@@ -208,6 +210,7 @@ public class ApiService {
                     genericResp.setCode(ICodeDescResponse.SUCCES_CODE);
                     genericResp.setDescription(messageSource.getMessage("client.success", null, locale));
                     genericResp.setDateResponse(Instant.now());
+                    genericResp.setRCode(obj.getString("rcode"));
 
                     JSONArray jsonArray = null;
                     JSONObject jsonObject = null;
@@ -228,17 +231,20 @@ public class ApiService {
                             .lastName(obj.getString("name")).phoneNumber(obj.getString("phonenumber"));
 
                     // TODO obj.getJSONObject("rdata") doit être une liste
-                    /* account.accountNum(obj.getJSONObject("rdata").getString("accountnumber"))
-                            .branchName(obj.getJSONObject("rdata").getString("branchname"))
-                            .accountname(obj.getJSONObject("rdata").getString("accountname"));*/
+                    /*
+                     * account.accountNum(obj.getJSONObject("rdata").getString("accountnumber"))
+                     * .branchName(obj.getJSONObject("rdata").getString("branchname"))
+                     * .accountname(obj.getJSONObject("rdata").getString("accountname"));
+                     */
 
                     genericResp.client(client);
                     tracking = createTracking(tracking, ICodeDescResponse.SUCCES_CODE, request.getRequestURI(),
                             genericResp.toString(), clientRequest.toString(), genericResp.getResponseReference());
-                } else {
+                } else if (!obj.isNull("rcode") && !obj.get("rcode").equals("0100")) {
                     genericResp.setCode(ICodeDescResponse.ECHEC_CODE);
                     genericResp.setDateResponse(Instant.now());
                     genericResp.setDescription(messageSource.getMessage("client.error", null, locale));
+                    genericResp.setRCode(obj.getString("rcode"));
                     tracking = createTracking(tracking, ICodeDescResponse.ECHEC_CODE, request.getRequestURI(),
                             genericResp.toString(), clientRequest.toString(), genericResp.getResponseReference());
                 }
@@ -334,13 +340,15 @@ public class ApiService {
                     genericResp.setDescription(messageSource.getMessage("loan.success", null, locale));
                     genericResp.setDateResponse(Instant.now());
                     genericResp.setRefIngec(obj.getJSONObject("rdata").getString("refIngec"));
+                    genericResp.setRCode(obj.getString("rcode"));
 
                     tracking = createTracking(tracking, ICodeDescResponse.SUCCES_CODE, request.getRequestURI(),
                             genericResp.toString(), loanRequest.toString(), genericResp.getResponseReference());
-                } else {
+                } else if (!obj.isNull("rcode") && !obj.get("rcode").equals("0100")) {
                     genericResp.setCode(ICodeDescResponse.ECHEC_CODE);
                     genericResp.setDateResponse(Instant.now());
                     genericResp.setDescription(getMsgErrorLoan(obj, locale));
+                    genericResp.setRCode(obj.getString("rcode"));
                     tracking = createTracking(tracking, ICodeDescResponse.ECHEC_CODE, request.getRequestURI(),
                             genericResp.toString(), loanRequest.toString(), genericResp.getResponseReference());
                 }
@@ -422,13 +430,15 @@ public class ApiService {
                     genericResp.setCode(ICodeDescResponse.SUCCES_CODE);
                     genericResp.setDescription(messageSource.getMessage("notify.success", null, locale));
                     genericResp.setDateResponse(Instant.now());
+                    genericResp.setRCode(obj.getString("rcode"));
 
                     tracking = createTracking(tracking, ICodeDescResponse.SUCCES_CODE, request.getRequestURI(),
                             genericResp.toString(), notifyRequest.toString(), genericResp.getResponseReference());
-                } else {
+                } else if (!obj.isNull("rcode") && !obj.get("rcode").equals("0100")) {
                     genericResp.setCode(ICodeDescResponse.ECHEC_CODE);
                     genericResp.setDateResponse(Instant.now());
                     genericResp.setDescription(messageSource.getMessage("notify.error", null, locale));
+                    genericResp.setRCode(obj.getString("rcode"));
                     tracking = createTracking(tracking, ICodeDescResponse.ECHEC_CODE, request.getRequestURI(),
                             genericResp.toString(), notifyRequest.toString(), genericResp.getResponseReference());
                 }
