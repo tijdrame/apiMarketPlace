@@ -611,7 +611,10 @@ public class ApiService {
             final String[] params = new String[] { age != null ? age : "x", valMin != null ? valMin : "x",
                     valMax != null ? valMax : "y" };
             return messageSource.getMessage("loan.error.214", params, locale);
-        } else {
+        }else if (retour.equals("0215")) {
+            return messageSource.getMessage("loan.error.215", null, locale);
+        }
+         else {
             return messageSource.getMessage("auth.error.exep", null, locale);
         }
     }
